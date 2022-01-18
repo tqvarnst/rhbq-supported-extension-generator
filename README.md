@@ -1,5 +1,10 @@
 # rhbq-supported-extension-generator Project
 
+## Build status
+
+![Linux x86_64](https://github.com/tqvarnst/rhbq-supported-extension-generator/actions/workflows/main.yaml/badge.svg)
+
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .

@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.quarkus.logging.Log;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -43,6 +44,12 @@ public class MainCommand implements Runnable {
     public void run() {
         List<String> availableStreams = registryHelper.getAvailableStreams();
 
+        // If there is only one available stream we will default to use that one.
+        if(availableStreams.size()==1 && "unspecified".equals(stream)) {
+            stream=availableStreams.get(0);
+            System.out.printf("Only one available stream (%s) so generating the output based on that stream\n",stream);
+        }
+
 
         while(!availableStreams.contains(stream)) {
             System.out.println("Available streams are:");
@@ -72,11 +79,14 @@ public class MainCommand implements Runnable {
                                     .data("supportedInJvmExtensions",extHelper.getSupportedInJVMExtensions(stream))
                                     .data("techpreviewExtensions",extHelper.getTechpreviewExtensions(stream))
                                     .data("devSupportedExtensions",extHelper.getDevSupportedExtensions(stream))
+                                    .data("productExtensions",extHelper.getProductExtensions(stream))
                                     .data("shortVersion",shortVersion)
                                     .data("fullVersion",fullVersion);
 
         if("unspecified".equals(outputFile)) {
+            System.out.println("=========== Output =============");
             System.out.println(data.render());
+            System.out.println("================================");
         } else {
             System.out.println(String.format("Saving the generated content into the markdown to file %s",outputFile));
             writeToFile(data.render()); 

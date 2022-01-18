@@ -62,6 +62,15 @@ public class ExtentionHelper {
             .collect(Collectors.toList());
     }
 
+    public List<Extension> getProductExtensions(String stream) {
+        return getAllExtensions(stream).stream()
+            .filter(e -> e.id.startsWith("io.quarkus:"))
+            .filter(e -> e.version.contains("-redhat-"))
+            .collect(Collectors.toMap(Extension::getArtifactId, Function.identity(), (oldValue, newValue) -> oldValue)).values().stream() //To avoid duplicates
+            .sorted(compareByArtifactId)
+            .collect(Collectors.toList());
+    }
+
     public Extension getExtension(String stream, String artifactId) {
         return new Extension();
     }
