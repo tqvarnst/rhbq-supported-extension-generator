@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.quarkus.logging.Log;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;

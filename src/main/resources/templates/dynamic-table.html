@@ -1,0 +1,9 @@
+### Maven Artifacts Provided with Red Hat build of Quarkus 2.x {|{#RHBQ_2}|} 
+The maven dependency need to use the groupID `io.quarkus`.
+We recommend to use the bom file instead of adding the dedicated version for the component.
+
+| Artifact | {shortVersion} |
+| ----- | ----- |
+{#for extension in productExtensions}
+|{extension.artifactId}|{extension.printSupportStatusHTML.raw}|
+{/for}
