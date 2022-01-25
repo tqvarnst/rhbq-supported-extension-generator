@@ -15,15 +15,15 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 
 @ApplicationScoped
-public class ExtentionHelper {
+public class ExtensionHelper {
     
     @Inject
     @RestClient
     ExtensionService service;
 
-    static Comparator<Extension> compareByArtifactId= (Extension e1, Extension e2) -> e1.getArtifactId().compareTo(e2.getArtifactId());
+    static Comparator<Extension> compareByArtifactId= Comparator.comparing(Extension::getArtifactId);
 
-    Map<String,List<Extension>> mapOfextensions = new HashMap<>();
+    Map<String,List<Extension>> extensionMap = new HashMap<>();
 
 
     public List<Extension> getSupportedExtensions(String stream) {
@@ -76,12 +76,12 @@ public class ExtentionHelper {
     }
 
     private List<Extension> getAllExtensions(String stream) {
-        if(!mapOfextensions.containsKey(stream)) {
+        if(!extensionMap.containsKey(stream)) {
             List<Extension> allExtensions = service.getByStream(stream);
-            mapOfextensions.put(stream, allExtensions);
+            extensionMap.put(stream, allExtensions);
             
         } 
-        return mapOfextensions.get(stream);
+        return extensionMap.get(stream);
 
     }
 

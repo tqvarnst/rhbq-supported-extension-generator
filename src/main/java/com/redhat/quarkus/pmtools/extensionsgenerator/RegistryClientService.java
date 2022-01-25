@@ -4,6 +4,7 @@ package com.redhat.quarkus.pmtools.extensionsgenerator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 
@@ -13,6 +14,6 @@ public interface RegistryClientService {
     
     @Path("/platforms")
     @GET
-    public Platforms getPlatforms();
+    public Uni<Platforms> getPlatforms();
 
 }

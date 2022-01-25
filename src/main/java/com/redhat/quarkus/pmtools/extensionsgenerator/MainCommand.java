@@ -3,13 +3,16 @@ package com.redhat.quarkus.pmtools.extensionsgenerator;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.mutiny.Uni;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -30,10 +33,13 @@ public class MainCommand implements Runnable {
     boolean latestVersion;
 
     @Inject
-    ExtentionHelper extHelper;
+    ExtensionHelper extHelper;
 
     @Inject
     RegistryClientHelper registryHelper;
+
+    @Inject
+    BOMVersionService bomVersionService;
 
     @Inject
     Template output;
@@ -41,7 +47,14 @@ public class MainCommand implements Runnable {
 
     @Override
     public void run() {
-        List<String> availableStreams = registryHelper.getAvailableStreams();
+        //productVersionHelper.getVersions().subscribe().with(parseVersions());
+        Uni<List<String>> bomVersionsUni = bomVersionService.getVersions();
+        Uni<List<String>> availableStreamsUni = registryHelper.getAvailableStreams();
+        Uni<List<String>> exactVersionsUni = registryHelper.getExactVersions();
+
+        List<String> bomVersions = bomVersionsUni.await().atMost(Duration.ofSeconds(30));
+        List<String> availableStreams = availableStreamsUni.await().atMost(Duration.ofSeconds(30));
+        List<String> exactVersions = exactVersionsUni.await().atMost(Duration.ofSeconds(30));
 
         // If there is only one available stream we will default to use that one.
         if(availableStreams.size()==1 && "unspecified".equals(stream)) {
@@ -52,11 +65,11 @@ public class MainCommand implements Runnable {
 
         while(!availableStreams.contains(stream)) {
             System.out.println("Available streams are:");
-            availableStreams.forEach(s -> System.out.println(String.format(" - %s", s)));
+            availableStreams.forEach(s -> System.out.printf(" - %s%n", s));
             stream = System.console().readLine("Please enter the stream to use? ");
         }
 
-        List<String> exactVersions = registryHelper.getExactVersions();
+
 
 
 
@@ -66,8 +79,8 @@ public class MainCommand implements Runnable {
             fullVersion = exactVersions.get(0);
         } else {
             while(!exactVersions.contains(fullVersion)) {
-                System.out.println(String.format("Available versions in stream %s are:", stream));
-                exactVersions.forEach(v -> System.out.println(String.format(" - %s", v)));
+                System.out.printf("Available versions in stream %s are:%n", stream);
+                exactVersions.forEach(v -> System.out.printf(" - %s%n", v));
                 fullVersion = stream = System.console().readLine("Please enter the full version to use? ");
             }
         }
@@ -75,20 +88,21 @@ public class MainCommand implements Runnable {
  
 
         TemplateInstance data = output.data("supportedExtensions",extHelper.getSupportedExtensions(stream))
-                                    .data("supportedInJvmExtensions",extHelper.getSupportedInJVMExtensions(stream))
-                                    .data("techpreviewExtensions",extHelper.getTechpreviewExtensions(stream))
-                                    .data("devSupportedExtensions",extHelper.getDevSupportedExtensions(stream))
-                                    .data("productExtensions",extHelper.getProductExtensions(stream))
-                                    .data("shortVersion",shortVersion)
-                                    .data("fullVersion",fullVersion);
+                .data("supportedInJvmExtensions",extHelper.getSupportedInJVMExtensions(stream))
+                .data("techpreviewExtensions",extHelper.getTechpreviewExtensions(stream))
+                .data("devSupportedExtensions",extHelper.getDevSupportedExtensions(stream))
+                .data("productExtensions",extHelper.getProductExtensions(stream))
+                .data("shortVersion",shortVersion)
+                .data("fullVersion",fullVersion)
+                .data("bomVersions",bomVersions);
 
         if("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");
             System.out.println(data.render());
             System.out.println("================================");
         } else {
-            System.out.println(String.format("Saving the generated content into the markdown to file %s",outputFile));
-            writeToFile(data.render()); 
+            System.out.printf("Saving the generated content into the markdown to file %s%n",outputFile);
+            writeToFile(data.render());
             System.out.println("DONE!");
         }
     }
@@ -98,17 +112,10 @@ public class MainCommand implements Runnable {
     }
 
     private void writeToFile(String output) {
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(outputFile));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(output);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if(writer != null)
-                    writer.close();
-            } catch (IOException e) {}
         }
     }
 }

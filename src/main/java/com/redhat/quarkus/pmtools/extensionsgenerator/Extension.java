@@ -25,7 +25,7 @@ public class Extension {
     
     @Override
     public String toString() {
-        return String.format("%s:%s\t%s", id, version, Stream.of(tags).collect(Collectors.joining(",")));
+        return String.format("%s:%s\t%s", id, version, String.join(",", tags));
     }
 
     @Override

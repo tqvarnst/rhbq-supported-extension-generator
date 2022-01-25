@@ -8,11 +8,15 @@ Module support classifications serve as guidelines for customer use cases, and t
     The component fully supported for usage both in JVM and Native mode
     As defined by the [Red Hat Production Support Scope of Coverage](https://access.redhat.com/support/offerings/production/soc/).
 
+* <font color="green">**JVM**</font>
+    The component fully supported for in JVM mode, Native mode are considered as Tech Preview
+    As defined by the [Red Hat Production Support Scope of Coverage](https://access.redhat.com/support/offerings/production/soc/).
+
 
 * <font color="orange">**TP**</font>
     The component is considered a technology preview.  Red Hat does not provide support for Technology Preview components provided with this release of Red Hat build of Quarkus. Items designated as Technology Preview in the sections below have limited supportability, as defined by the [Technology Preview Features Support Scope](https://access.redhat.com/support/offerings/techpreview/).
 
-* **<font color="blue">DEV</font>**
+* <font color="blue">**DEV**</font>
     The component is supported for development use only as defined by the [Red Hat Development Support Scope of Coverage](https://access.redhat.com/support/offerings/developer/soc/)
 
 
@@ -31,19 +35,13 @@ We strongly recommend to use the BOM, please use the following Maven dependency:
 
 #### List of the available BOM versions
 
-| Product Version | BOM Version |
-| ----- | ----- |
-| [2.2.3](#RHBQ_2) | 2.2.3.Final-redhat-00013 |
-| [1.11.7](#RHBQ_1) | 1.11.7.Final-redhat-00009 |
-| [1.11.6](#RHBQ_1) | 1.11.6.Final-redhat-00001 |
-| [1.7.6](#RHBQ_1) | 1.7.6.Final-redhat-00014 |
-| [1.7.5.SP1](#RHBQ_1) | 1.7.5.Final-redhat-00011 |
-| [1.7.5](#RHBQ_1) | 1.7.5.Final-redhat-00007 |
-| [1.3.4](#RHBQ_1) | 1.3.4.Final-redhat-00001 |
-| [1.3.2](#RHBQ_1) | 1.3.2.Final-redhat-00001 |
+{#include bom-list /}
 
+### Supported extensions Red Hat build of Quarkus 2.x {|{#RHBQ_2}|}
+The maven dependency need to use the groupID `io.quarkus`.
+We recommend to use the bom file instead of adding the dedicated version for the component.
 
-{#include dynamic-table /}
+{#include supported-extension-version2 /}
 
 
 
@@ -103,7 +101,7 @@ We recommend to use the bom file instead of adding the dedicated version for the
 |quarkus-keycloak-admin-client|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="orange"><strong>TP</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
 |quarkus-keycloak-authorization|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="orange"><strong>TP</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|<font color="orange"><strong>TP</strong> [1.3.4]( '' "1.3.4.Final-redhat-00001")</font>|<font color="orange"><strong>TP</strong> [1.3.2]( '' "1.3.2.Final-redhat-00001")</font>|
 |quarkus-kubernetes|<font color="blue"><strong>DEV</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="blue"><strong>DEV</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
-|quarkus-kubernetes-client|<font color="blue"><strong>DEV<strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="blue"><strong>DEV<strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
+|quarkus-kubernetes-client|<font color="blue"><strong>DEV</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="blue"><strong>DEV</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
 |quarkus-kubernetes-client-internal|||<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
 |quarkus-kubernetes-config|<font color="orange"><strong>TP</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="orange"><strong>TP</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="orange"><strong>TP</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="orange"><strong>TP</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|||
 |quarkus-kubernetes-service-binding|<font color="orange"><strong>TP</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="orange"><strong>TP</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>||||||
@@ -118,7 +116,7 @@ We recommend to use the bom file instead of adding the dedicated version for the
 |quarkus-oidc-client-filter|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>||||||
 |quarkus-oidc-client|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>||||||
 |quarkus-oidc|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="green"><strong>S</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="green"><strong>S</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="green"><strong>S</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|<font color="green"><strong>S</strong> [1.3.4]( '' "1.3.4.Final-redhat-00001")</font>|<font color="green"><strong>S</strong> [1.3.2]( '' "1.3.2.Final-redhat-00001")</font>|
-|quarkus-openshift|<font color="blue"><strong>DEV<strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="blue"><strong>DEV</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|<font color="blue"><strong>DEV</strong> [1.3.4]( '' "1.3.4.Final")</font>|<font color="blue"><strong>DEV</strong> [1.3.2]( '' "1.3.2.Final")</font>|
+|quarkus-openshift|<font color="blue"><strong>DEV</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="blue"><strong>DEV</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="blue"><strong>DEV</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="blue"><strong>DEV</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|<font color="blue"><strong>DEV</strong> [1.3.4]( '' "1.3.4.Final")</font>|<font color="blue"><strong>DEV</strong> [1.3.2]( '' "1.3.2.Final")</font>|
 |quarkus-openshift-client|<font color="orange"><strong>TP</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="orange"><strong>TP</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>||||||
 |quarkus-panache-common||||||<font color="green"><strong>S</strong> [1.3.4]( '' "1.3.4.Final-redhat-00001")</font>|<font color="green"><strong>S</strong> [1.3.2]( '' "1.3.2.Final-redhat-00001")</font>|
 |quarkus-quartz|<font color="green"><strong>S</strong> [1.11.7]('' "1.11.7.Final-redhat-00009")</font>|<font color="green"><strong>S</strong> [1.11.6]('' "1.11.6.Final-redhat-00001")</font>|<font color="green"><strong>S</strong> [1.7.6]('' "1.7.6.Final-redhat-00014")</font>|<font color="green"><strong>S</strong> [1.7.5]('' "1.7.5.Final-redhat-00011")</font>|<font color="green"><strong>S</strong> [1.7.5]('' "1.7.5.Final-redhat-00007")</font>|<font color="green"><strong>S</strong> [1.3.4]( '' "1.3.4.Final-redhat-00001")</font>|<font color="green"><strong>S</strong> [1.3.2]( '' "1.3.2.Final-redhat-00001")</font>|
