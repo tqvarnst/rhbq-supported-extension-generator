@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +30,7 @@ public class MainCommand implements Runnable {
     String outputFile;
 
     @Inject
-    PlatformVersionService bomVersionService;
+    PlatformVersionService platformVersionService;
 
     @Inject
     ExtensionCatalogService extensionCatalogService;
@@ -43,7 +42,7 @@ public class MainCommand implements Runnable {
 
     @Override
     public void run() {
-        Uni<List<String>> bomVersionsUni = bomVersionService.getVersions();
+        Uni<List<String>> bomVersionsUni = platformVersionService.getVersions();
 
 
         List<String> platformVersions = bomVersionsUni.await()
@@ -80,10 +79,6 @@ public class MainCommand implements Runnable {
             System.out.println("DONE!");
         }
     }
-
-//    private static String getShortVersionFromFullVersion(String fullVersion) {
-//        return fullVersion.contains("-redhat") ? fullVersion.split("-redhat")[0] : fullVersion;
-//    }
 
     private void writeToFile(String output) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {

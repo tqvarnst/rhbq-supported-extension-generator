@@ -57,7 +57,6 @@ public class SupportTableExtensions {
         List<String> metadata = (List<String>) extension.getMetadata().get("redhat-support");
         String version = extension.getArtifact().getVersion();
 
-        //[<font color='green'><strong>S</strong></font>]('' '2.2.3.Final-redhat-00013')
         if(metadata!=null) {
             if (metadata.contains("supported-in-jvm")) {
                 return String.format("[<font color='green'><strong>JVM</strong></font>]('' '%s')", version);
