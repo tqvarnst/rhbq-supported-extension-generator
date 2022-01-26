@@ -4,14 +4,21 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionComparator;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.quarkus.registry.catalog.ExtensionCatalog;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -20,81 +27,48 @@ import picocli.CommandLine.Option;
 @Command(mixinStandardHelpOptions = true)
 public class MainCommand implements Runnable {
 
-    @Option(names = {"-S","--stream"}, description = "The stream (X.Y) to generate the supported artifacts for", defaultValue = "unspecified")
-    String stream;
-
-    @Option(names = {"-n","--full-version"}, description = "The exact full version to", defaultValue = "unspecified")
-    String version;
-
     @Option(names = {"-o","--output"}, description = "The file to write the generated mark down to, leave empty to print to console", defaultValue = "unspecified")
     String outputFile;
 
-    @Option(names = {"-l","--latest"}, description = "Use the latest exact version in a stream")
-    boolean latestVersion;
+    @Inject
+    PlatformVersionService bomVersionService;
 
     @Inject
-    ExtensionHelper extHelper;
+    ExtensionCatalogService extensionCatalogService;
 
-    @Inject
-    RegistryClientHelper registryHelper;
-
-    @Inject
-    BOMVersionService bomVersionService;
-
+    @SuppressWarnings("all")
     @Inject
     Template output;
 
 
     @Override
     public void run() {
-        //productVersionHelper.getVersions().subscribe().with(parseVersions());
         Uni<List<String>> bomVersionsUni = bomVersionService.getVersions();
-        Uni<List<String>> availableStreamsUni = registryHelper.getAvailableStreams();
-        Uni<List<String>> exactVersionsUni = registryHelper.getExactVersions();
-
-        List<String> bomVersions = bomVersionsUni.await().atMost(Duration.ofSeconds(30));
-        List<String> availableStreams = availableStreamsUni.await().atMost(Duration.ofSeconds(30));
-        List<String> exactVersions = exactVersionsUni.await().atMost(Duration.ofSeconds(30));
-
-        // If there is only one available stream we will default to use that one.
-        if(availableStreams.size()==1 && "unspecified".equals(stream)) {
-            stream=availableStreams.get(0);
-            System.out.printf("Only one available stream (%s) so generating the output based on that stream\n",stream);
-        }
 
 
-        while(!availableStreams.contains(stream)) {
-            System.out.println("Available streams are:");
-            availableStreams.forEach(s -> System.out.printf(" - %s%n", s));
-            stream = System.console().readLine("Please enter the stream to use? ");
-        }
+        List<String> platformVersions = bomVersionsUni.await()
+                .atMost(Duration.ofSeconds(30))
+                .stream()
+                    .filter(v -> !v.startsWith("1."))
+                    .sorted(new VersionComparator())
+                .collect(Collectors.toList());
+
+        Uni<List<ExtensionCatalog>> extensionCatalogListUni = Multi.createFrom().iterable(platformVersions)
+                .onItem()
+                .transformToUniAndMerge(v -> extensionCatalogService.getExtensionCatalogForVersion(v))
+                .collect().asList();
+
+        List<ExtensionCatalog> extensionCatalogs = extensionCatalogListUni
+                .await()
+                .atMost(Duration.ofSeconds(30))
+                .stream()
+                    .sorted(new ExtensionCatalogComparator())
+                .collect(Collectors.toList());
 
 
-
-
-
-
-        String fullVersion = "";
-        if(latestVersion || exactVersions.size()==1) {
-            fullVersion = exactVersions.get(0);
-        } else {
-            while(!exactVersions.contains(fullVersion)) {
-                System.out.printf("Available versions in stream %s are:%n", stream);
-                exactVersions.forEach(v -> System.out.printf(" - %s%n", v));
-                fullVersion = stream = System.console().readLine("Please enter the full version to use? ");
-            }
-        }
-        String shortVersion = getShortVersionFromFullVersion(fullVersion);
- 
-
-        TemplateInstance data = output.data("supportedExtensions",extHelper.getSupportedExtensions(stream))
-                .data("supportedInJvmExtensions",extHelper.getSupportedInJVMExtensions(stream))
-                .data("techpreviewExtensions",extHelper.getTechpreviewExtensions(stream))
-                .data("devSupportedExtensions",extHelper.getDevSupportedExtensions(stream))
-                .data("productExtensions",extHelper.getProductExtensions(stream))
-                .data("shortVersion",shortVersion)
-                .data("fullVersion",fullVersion)
-                .data("bomVersions",bomVersions);
+        TemplateInstance data = output
+                .data("extensionCatalogs",extensionCatalogs)
+                .data("platformVersions",platformVersions);
 
         if("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");
@@ -107,9 +81,9 @@ public class MainCommand implements Runnable {
         }
     }
 
-    private static String getShortVersionFromFullVersion(String fullVersion) {
-        return fullVersion.contains("-redhat") ? fullVersion.split("-redhat")[0] : fullVersion;
-    }
+//    private static String getShortVersionFromFullVersion(String fullVersion) {
+//        return fullVersion.contains("-redhat") ? fullVersion.split("-redhat")[0] : fullVersion;
+//    }
 
     private void writeToFile(String output) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
