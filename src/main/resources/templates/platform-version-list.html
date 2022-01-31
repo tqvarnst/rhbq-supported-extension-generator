@@ -1,7 +1,7 @@
-| Product Version | Quarkus Version | Quarkus Upstream Version Version | Members |
+| Product Version | Platform Version | Quarkus Upstream Version | Members |
 | ----- | ----- | ----- | ----- |
-{#for platform in platformList}
-|{platform.shortVersion.sectionLink}|{platform.fullVersion}|{platform.upstreamQuarkusVersion}|{#for member in platform.platformMetadata.members.orEmpty}{member.artifactId.memberName}<br/>{/for}|
+{#for ec in extensionCatalogs}
+|{ec.bom.version.shortVersion.sectionLink}|{ec.bom.version}|{ec.upstreamQuarkusCoreVersion}|{#for member in ec.members.orEmpty}{member.memberName}<br/>{/for}|
 {/for}
 |[1.11.7](#RHBQ_1)|1.11.7.Final-redhat-00009|1.11.7|N/A*|
 |[1.11.6](#RHBQ_1)|1.11.6.Final-redhat-00006|1.11.6|N/A*|
@@ -10,4 +10,4 @@
 |[1.3.4](#RHBQ_1)|1.3.4.Final-redhat-00004|1.3.4|N/A*|
 |[1.3.2](#RHBQ_1)|1.3.2.Final-redhat-00001|1.3.2|N/A*|
 
-*= Before 2.0 there wasn't a platform so it's not applicable to list any platform members.
+*= The platform functionality was introduced in 2.x, so for version before 2.x there is no list of platform members.

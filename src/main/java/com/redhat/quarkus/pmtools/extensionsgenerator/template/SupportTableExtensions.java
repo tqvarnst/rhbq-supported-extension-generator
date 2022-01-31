@@ -1,5 +1,6 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.template;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionComparator;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.registry.catalog.Extension;
 import io.quarkus.registry.catalog.ExtensionCatalog;
@@ -9,6 +10,7 @@ import java.util.*;
 
 import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions.shortVersion;
 
+@SuppressWarnings("unused")
 @TemplateExtension(namespace = "support_table")
 public class SupportTableExtensions {
 
@@ -46,7 +48,7 @@ public class SupportTableExtensions {
     }
 
     private static Set<String> getUniqueAndSortedExtensions(List<ExtensionCatalog> extensionCatalogList) {
-        Set<String> extensions = new TreeSet<>();
+        Set<String> extensions = new TreeSet<>(new ExtensionComparator());
         extensionCatalogList.forEach(
                 extensionCatalog -> extensionCatalog.getExtensions().forEach(extension -> {
                     String id = extension.getArtifact().getArtifactId();
@@ -62,10 +64,7 @@ public class SupportTableExtensions {
 
     private static boolean hasSupportMetadata(Extension e) {
         List<String> metadata = (List<String>) e.getMetadata().get("redhat-support");
-        if(metadata==null || metadata.contains("unsupported"))
-            return false;
-        else
-            return true;
+        return metadata != null && !metadata.contains("unsupported");
 
     }
 

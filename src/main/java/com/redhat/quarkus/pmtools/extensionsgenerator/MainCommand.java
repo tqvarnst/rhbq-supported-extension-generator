@@ -1,11 +1,7 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator;
 
-import com.redhat.quarkus.pmtools.extensionsgenerator.model.Platform;
-import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformFactory;
-import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformMember;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
-import com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionComparator;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
@@ -27,6 +23,7 @@ import java.util.stream.Collectors;
 
 @TopCommand
 @Command(mixinStandardHelpOptions = true)
+@SuppressWarnings("unused")
 public class MainCommand implements Runnable {
 
     @Option(names = {"-o","--output"}, description = "The file to write the generated mark down to, leave empty to print to console", defaultValue = "unspecified")
@@ -67,17 +64,8 @@ public class MainCommand implements Runnable {
                     .sorted(new ExtensionCatalogComparator())
                 .collect(Collectors.toList());
 
-        List<Platform> platformList = extensionCatalogs.stream().map(PlatformFactory::create).collect(Collectors.toList());
-//        platformList.forEach(p -> p.getPlatformMetadata().getMembers().stream().map(m -> SupportEntryExtensions.memberText(m)).forEach(System.out::println));
-        platformList.forEach(p -> {
-            System.out.println("- Platform " + p.getShortVersion());
-            p.getPlatformMetadata().getMembers().stream().map(PlatformMember::getArtifactId).map(SupportEntryExtensions::memberName).forEach(System.out::println);
-        });
 
-        TemplateInstance data = output
-                .data("extensionCatalogs",extensionCatalogs)
-                .data("platformVersions",platformVersions)
-                .data("platformList",platformList);
+        TemplateInstance data = output.data("extensionCatalogs",extensionCatalogs);
 
         if("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");

@@ -1,77 +1,40 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.services;
 
-import com.redhat.quarkus.pmtools.extensionsgenerator.model.Platform;
-import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformMember;
 import io.quarkus.logging.Log;
+import io.quarkus.maven.ArtifactCoords;
+import io.quarkus.registry.ExtensionCatalogResolver;
+import io.quarkus.registry.RegistryResolutionException;
 import io.quarkus.registry.catalog.ExtensionCatalog;
+import io.quarkus.registry.config.RegistriesConfig;
+import io.quarkus.registry.config.RegistryConfig;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.Vertx;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ApplicationScoped
 public class ExtensionCatalogService {
 
-    @Inject
-    @RestClient
-    ExtensionCatalogRestClient restClient;
-
     @SuppressWarnings("all")
     public Uni<ExtensionCatalog> getExtensionCatalogForVersion(String version) {
-        return restClient.getExtensionCatalogJsonFromVersion(version,version,version)
-                .onItem()
-                .transform(s -> {
-                    Log.debugf("Getting ExtensionCatalog for version %s.",version);
-                    try {
-                        return ExtensionCatalog.fromStream(IOUtils.toInputStream(s, Charset.defaultCharset()));
-                    } catch (IOException e) {
-                        Log.errorf("Failed to create Input Stream for %s.",version,e);
-                        return null;
-                    }
-                })
-                .onFailure().recoverWithNull();
-    }
-
-    public Uni<ExtensionCatalog> getExtensionCatalogForMember(PlatformMember member) {
-        return restClient.getExtensionCatalogJsonForMember(member.getPlatformVersion(),
-                member.getArtifactId(),
-                member.getVersion(),
-                member.getVersion())
-                    .onItem()
-                    .transform(s -> {
-                        Log.debugf("Getting ExtensionCatalog for member %s:%s:%s.",member.getGroup(),member.getArtifactId(),member.getVersion());
-                        try {
-                            return ExtensionCatalog.fromStream(IOUtils.toInputStream(s, Charset.defaultCharset()));
-                        } catch (IOException e) {
-                            Log.errorf("Failed to create Input Stream for %s:%s:%s",member.getGroup(),member.getArtifactId(),member.getVersion());
-                            Log.error(e);
-                            return null;
-                        }
-                    })
-                    .onFailure().recoverWithNull();
-    }
-
-
-    private ExtensionCatalog fromString(String s) {
+        final ArtifactCoords platformQuarkusBom = ArtifactCoords.fromString(String.format("com.redhat.quarkus.platform:quarkus-bom::pom:%s",version));
+        RegistriesConfig registries = RegistriesConfig.builder()
+                .setRegistries(List.of(
+                        RegistryConfig.builder().setId("registry.quarkus.redhat.com"),
+                        RegistryConfig.builder().setId("registry.quarkus.io")
+                                // disable non-platform extensions
+                                .setNonPlatformExtensions(null)))
+                .build();
+        Log.debugf("Trying to resolve extension catalog for version %s",version);
         try {
-            return ExtensionCatalog.fromStream(new ByteArrayInputStream(s.getBytes()));
-        } catch(IOException e) {
-            e.printStackTrace();
-            return null;
+            ExtensionCatalog catalog = ExtensionCatalogResolver.builder()
+                    .config(registries)
+                    .build()
+                    .resolveExtensionCatalog(List.of(platformQuarkusBom));
+            return Uni.createFrom().item(catalog);
+        } catch (RegistryResolutionException e) {
+            Log.debugf("Failed to resolve extension catalog for version %s",version);
+            return Uni.createFrom().failure(e);
         }
     }
 }

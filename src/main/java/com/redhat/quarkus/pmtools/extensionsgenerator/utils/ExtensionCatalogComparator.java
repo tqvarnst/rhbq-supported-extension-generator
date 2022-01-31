@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 public class ExtensionCatalogComparator implements Comparator<ExtensionCatalog> {
 
-    VersionComparator versionComparator = new VersionComparator();
+    final VersionComparator versionComparator = new VersionComparator();
 
     @Override
     public int compare(ExtensionCatalog ec1, ExtensionCatalog ec2) {
