@@ -1,5 +1,7 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.services;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.model.Platform;
+import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformMember;
 import io.quarkus.logging.Log;
 import io.quarkus.registry.catalog.ExtensionCatalog;
 import io.smallrye.mutiny.Uni;
@@ -42,6 +44,25 @@ public class ExtensionCatalogService {
                     }
                 })
                 .onFailure().recoverWithNull();
+    }
+
+    public Uni<ExtensionCatalog> getExtensionCatalogForMember(PlatformMember member) {
+        return restClient.getExtensionCatalogJsonForMember(member.getPlatformVersion(),
+                member.getArtifactId(),
+                member.getVersion(),
+                member.getVersion())
+                    .onItem()
+                    .transform(s -> {
+                        Log.debugf("Getting ExtensionCatalog for member %s:%s:%s.",member.getGroup(),member.getArtifactId(),member.getVersion());
+                        try {
+                            return ExtensionCatalog.fromStream(IOUtils.toInputStream(s, Charset.defaultCharset()));
+                        } catch (IOException e) {
+                            Log.errorf("Failed to create Input Stream for %s:%s:%s",member.getGroup(),member.getArtifactId(),member.getVersion());
+                            Log.error(e);
+                            return null;
+                        }
+                    })
+                    .onFailure().recoverWithNull();
     }
 
 

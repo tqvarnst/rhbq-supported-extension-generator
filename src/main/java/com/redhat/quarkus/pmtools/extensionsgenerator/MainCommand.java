@@ -1,16 +1,11 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.model.Platform;
+import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformFactory;
+import com.redhat.quarkus.pmtools.extensionsgenerator.model.PlatformMember;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionComparator;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
@@ -21,6 +16,14 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import javax.inject.Inject;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @TopCommand
 @Command(mixinStandardHelpOptions = true)
@@ -64,10 +67,17 @@ public class MainCommand implements Runnable {
                     .sorted(new ExtensionCatalogComparator())
                 .collect(Collectors.toList());
 
+        List<Platform> platformList = extensionCatalogs.stream().map(PlatformFactory::create).collect(Collectors.toList());
+//        platformList.forEach(p -> p.getPlatformMetadata().getMembers().stream().map(m -> SupportEntryExtensions.memberText(m)).forEach(System.out::println));
+        platformList.forEach(p -> {
+            System.out.println("- Platform " + p.getShortVersion());
+            p.getPlatformMetadata().getMembers().stream().map(PlatformMember::getArtifactId).map(SupportEntryExtensions::memberName).forEach(System.out::println);
+        });
 
         TemplateInstance data = output
                 .data("extensionCatalogs",extensionCatalogs)
-                .data("platformVersions",platformVersions);
+                .data("platformVersions",platformVersions)
+                .data("platformList",platformList);
 
         if("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");
@@ -78,7 +88,10 @@ public class MainCommand implements Runnable {
             writeToFile(data.render());
             System.out.println("DONE!");
         }
+
+
     }
+
 
     private void writeToFile(String output) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {

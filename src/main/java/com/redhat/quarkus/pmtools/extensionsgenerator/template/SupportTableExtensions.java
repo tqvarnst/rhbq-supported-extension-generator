@@ -3,6 +3,7 @@ package com.redhat.quarkus.pmtools.extensionsgenerator.template;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.registry.catalog.Extension;
 import io.quarkus.registry.catalog.ExtensionCatalog;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.*;
 
@@ -10,6 +11,10 @@ import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEnt
 
 @TemplateExtension(namespace = "support_table")
 public class SupportTableExtensions {
+
+    private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
+
+
     static String render(List<ExtensionCatalog> extensionCatalogs) {
         StringBuilder str = new StringBuilder();
         str.append("| Artifact | ");
@@ -44,14 +49,26 @@ public class SupportTableExtensions {
         Set<String> extensions = new TreeSet<>();
         extensionCatalogList.forEach(
                 extensionCatalog -> extensionCatalog.getExtensions().forEach(extension -> {
-                    if(extension.getMetadata().get("redhat-support")!=null && extension.getArtifact().getVersion().contains("-redhat-")) {
-                        String id = extension.getArtifact().getArtifactId();
+                    String id = extension.getArtifact().getArtifactId();
+                    if(!SHOW_ONLY_SUPPORTED_EXTENSIONS) {
+                        extensions.add(id);
+                    } else if(hasSupportMetadata(extension)) {
                         extensions.add(id);
                     }
                 })
         );
         return extensions;
     }
+
+    private static boolean hasSupportMetadata(Extension e) {
+        List<String> metadata = (List<String>) e.getMetadata().get("redhat-support");
+        if(metadata==null || metadata.contains("unsupported"))
+            return false;
+        else
+            return true;
+
+    }
+
     private static String printSupportStatusHTML(Extension extension) {
         @SuppressWarnings("unchecked")
         List<String> metadata = (List<String>) extension.getMetadata().get("redhat-support");
@@ -66,6 +83,8 @@ public class SupportTableExtensions {
                 return String.format("[<font color='orange'><strong>TP</strong></font>]('' '%s')", version);
             } else if (metadata.contains("dev-support")) {
                 return String.format("[<font color='blue'><strong>DEV</strong></font>]('' '%s')", version);
+            } else {
+                return metadata.toString();
             }
         }
         return " - ";

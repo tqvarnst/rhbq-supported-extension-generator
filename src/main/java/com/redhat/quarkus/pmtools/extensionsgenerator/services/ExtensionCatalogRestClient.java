@@ -18,4 +18,11 @@ public interface ExtensionCatalogRestClient {
     Uni<String> getExtensionCatalogJsonFromVersion(@PathParam("version1") String version1,
                                                           @PathParam("version2") String version2,
                                                           @PathParam("version3") String version3);
+
+    @GET
+    @Path("/{version1}/{memberId}-{version2}-{version3}.json")
+    Uni<String> getExtensionCatalogJsonForMember(@PathParam("version1") String version1,
+                                                 @PathParam("memberId") String memberId,
+                                                 @PathParam("version2") String version2,
+                                                 @PathParam("version3") String version3);
 }
