@@ -13,9 +13,6 @@ import io.smallrye.mutiny.Uni;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +70,8 @@ public class ExtensionCatalogService {
 					sb.append("the configuration");
 				}
 				sb.append(", it will be automatically enabled for this session");
-				Logger.getLogger(ExtensionCatalogService.class).warn(sb.toString());
+				Log.warn(sb.toString());
+				//Logger.getLogger(ExtensionCatalogService.class).warn(sb.toString());
 				break;
 			}
 		}
