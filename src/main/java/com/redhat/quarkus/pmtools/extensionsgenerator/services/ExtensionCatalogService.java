@@ -24,9 +24,9 @@ public class ExtensionCatalogService {
 
 	private static final String RH_QUARKUS_REGISTRY = "registry.quarkus.redhat.com";
 	
-	private static volatile RegistriesConfig config;
+	private volatile RegistriesConfig config;
 	
-	private static RegistriesConfig getConfig() {
+	private RegistriesConfig getConfig() {
 		return config == null ? config = initConfig() : config;
 	}
 		
@@ -58,7 +58,7 @@ public class ExtensionCatalogService {
 		return catalogResolver;
 	}
 
-	private static RegistriesConfig initConfig() {
+	private RegistriesConfig initConfig() {
 		RegistriesConfig config = RegistriesConfigLocator.resolveConfig();
 		for (RegistryConfig registry : config.getRegistries()) {
 			if (registry.getId().equals(RH_QUARKUS_REGISTRY)) {
