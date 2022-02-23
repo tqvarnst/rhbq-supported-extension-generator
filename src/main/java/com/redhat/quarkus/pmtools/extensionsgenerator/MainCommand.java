@@ -3,7 +3,7 @@ package com.redhat.quarkus.pmtools.extensionsgenerator;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
-import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionComparator;
+import io.quarkus.logging.Log;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
@@ -29,6 +29,11 @@ public class MainCommand implements Runnable {
     @Option(names = {"-o","--output"}, description = "The file to write the generated mark down to, leave empty to print to console", defaultValue = "unspecified")
     String outputFile;
 
+    @Option(names = {"-t","--timeout"}, description = "Increases the timeout waiting for remote registries. Unit it seconds and the default timeout is 30 seconds", defaultValue = "30")
+    int timoutSeconds;
+
+
+
     @Inject
     PlatformVersionService platformVersionService;
 
@@ -42,16 +47,15 @@ public class MainCommand implements Runnable {
 
     @Override
     public void run() {
-        Uni<List<String>> bomVersionsUni = platformVersionService.getVersions();
+        List<String> platformVersions;
+        try {
+            platformVersions = platformVersionService.getVersions(timoutSeconds);
+        } catch (Exception e) {
+            Log.debug(e);
+            return;
+        }
 
-
-        List<String> platformVersions = bomVersionsUni.await()
-                .atMost(Duration.ofSeconds(30))
-                .stream()
-                    .filter(v -> !v.startsWith("1."))
-                    .sorted(new VersionComparator())
-                .collect(Collectors.toList());
-
+        Log.debug("Sucessfully retrieved platform versions");
         Uni<List<ExtensionCatalog>> extensionCatalogListUni = Multi.createFrom().iterable(platformVersions)
                 .onItem()
                 .transformToUniAndMerge(v -> extensionCatalogService.getExtensionCatalogForVersion(v))
@@ -59,7 +63,7 @@ public class MainCommand implements Runnable {
 
         List<ExtensionCatalog> extensionCatalogs = extensionCatalogListUni
                 .await()
-                .atMost(Duration.ofSeconds(30))
+                .atMost(Duration.ofSeconds(timoutSeconds))
                 .stream()
                     .sorted(new ExtensionCatalogComparator())
                 .collect(Collectors.toList());

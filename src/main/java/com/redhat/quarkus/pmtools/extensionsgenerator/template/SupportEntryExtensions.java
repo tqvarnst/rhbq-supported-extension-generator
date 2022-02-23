@@ -50,10 +50,6 @@ public class SupportEntryExtensions {
 
     public static List<String> members(ExtensionCatalog ec) {
         Map<String,Object> metaData = ec.getMetadata();
-        Log.debugf("Meta data for %s contains:%n%s",ec.getBom().getVersion(),metaData);
-        Log.debugf("Meta data contains members %b ",metaData.containsKey("members"));
-        Log.debugf("Meta data contains %s",metaData.keySet().toString());
-        Log.debugf("Metadata length %d", metaData.keySet().size());
         if(metaData.containsKey("platform-release")) {
             Object platformRelease = metaData.get("platform-release");
             if(platformRelease instanceof Map) {
