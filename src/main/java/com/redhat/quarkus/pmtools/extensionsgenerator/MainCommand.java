@@ -18,6 +18,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,10 @@ public class MainCommand implements Runnable {
     public void run() {
         List<String> platformVersions;
         try {
-            platformVersions = platformVersionService.getVersions(timoutSeconds);
+            platformVersions = platformVersionService.getVersions() ;
         } catch (Exception e) {
-            Log.debug(e);
+            Log.debug(e.getMessage(),e);
+            System.out.println("Failed to get Platform Versions from the registry");
             return;
         }
 
