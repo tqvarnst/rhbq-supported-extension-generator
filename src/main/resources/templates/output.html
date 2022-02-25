@@ -20,19 +20,20 @@ Module support classifications serve as guidelines for customer use cases, and t
 
 
 
-### Bill Of Material (BOM) with supported and none supported artifacts
+### Bill Of Material (BOM) with supported and none supported extensions
 
-For convenience purposes Red Hat build of Quarkus ships with two different BOM files. One that only includes productized artifacts and one that contains both productized and community artifacts. Please note that the purpose of a Bill of Material is to align versions within a release to avoid misalignment of versions and as such it's not optimal to list supported vs not supported artifacts. For a complete list of supported artifacts please check the dedicated table on this page.
+For convenience purposes Red Hat build of Quarkus ships with two different BOM files. One that only includes productized extensions and one that contains both productized and community extensions. Please note that the purpose of a Bill of Material is to align versions within a release to avoid misalignment of versions and as such it's not optimal to list supported vs not supported extensions. For a complete list of supported extensions please check the dedicated table on this page.
 
-We strongly recommend to use the BOM, please use the following Maven dependency:
+We only support application build using a BOM, please use one of the following Bill of material:
 
 
-|GroupID | ArtifactID | Explanation |
+|GroupID | Extension ID | Explanation |
 |---- | ---- | ---- |
-|com.redhat.quarkus | quarkus-product-bom | only Supported artifacts |
-|com.redhat.quarkus | quarkus-universe-bom | Supported and community artifacts |
+|com.redhat.quarkus.platform | quarkus-bom | Supported and community extensions |
 
-#### List of the available platformInfos versions
+#### List of the available platform versions
+
+Red Hat build of Quarkus 2 is using a platform concept to align mulitple groups of extensions. The list below shows which platform vesions have been released and the members list which additional groups of extensions has been included.
 
 {#include platform-version-list /}
 
