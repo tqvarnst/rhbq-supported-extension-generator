@@ -75,13 +75,13 @@ public class SupportTableExtensions {
 
         if(metadata!=null) {
             if (metadata.contains("supported-in-jvm")) {
-                return String.format("[<font color='green'><strong>JVM</strong></font>]('' '%s')", version);
+                return String.format("<font color='green'><strong>JVM</strong></font>");
             } else if (metadata.contains("supported")) {
-                return String.format("[<font color='green'><strong>S</strong></font>]('' '%s')", version);
+                return String.format("<font color='green'><strong>S</strong></font>");
             } else if (metadata.contains("tech-preview")) {
-                return String.format("[<font color='orange'><strong>TP</strong></font>]('' '%s')", version);
+                return String.format("<font color='orange'><strong>TP</strong></font>");
             } else if (metadata.contains("dev-support")) {
-                return String.format("[<font color='blue'><strong>DEV</strong></font>]('' '%s')", version);
+                return String.format("<font color='blue'><strong>DEV</strong></font>");
             } else {
                 return metadata.toString();
             }
