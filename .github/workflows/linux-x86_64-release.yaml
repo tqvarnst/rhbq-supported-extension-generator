@@ -14,7 +14,7 @@ jobs:
     - name: Install graalvm
       uses: DeLaGuardo/setup-graalvm@3
       with:
-        graalvm-version: '21.3.0.java11'
+        graalvm-version: '22.1.0.java17'
     - name: Install native-image
       run: gu install native-image
     - name: cache ~/.m2

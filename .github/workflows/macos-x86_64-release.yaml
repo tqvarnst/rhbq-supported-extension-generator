@@ -14,7 +14,7 @@ jobs:
     - name: Install graalvm
       uses: DeLaGuardo/setup-graalvm@3
       with:
-        graalvm-version: '21.3.0.java11'
+        graalvm-version: '22.1.0.java17'
     - name: Install native-image
       run: gu install native-image
     - name: cache ~/.m2
@@ -26,7 +26,7 @@ jobs:
     - name: Set version
       run: ./mvnw versions:set -DnewVersion="${{ github.event.release.tag_name }}" 
     - name: Build native executable
-      run: ./mvnw package -Dnative 
+      run: ./mvnw package -Dnative -Dmaven.repo.local=/tmp
     - name: Upload native executable
       id: upload-native-executable
       uses: actions/upload-release-asset@v1
