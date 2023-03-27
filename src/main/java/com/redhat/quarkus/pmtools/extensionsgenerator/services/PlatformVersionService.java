@@ -30,7 +30,18 @@ public class PlatformVersionService {
 
         versionList.forEach( v -> {
             String shortVersion = VersionUtils.shortVersion(v);
-            if(shortVersionMap.containsKey(shortVersion)) {
+            /**
+             * Because there is an issue where a number of 2.7.6 releases that was SP release was named Final but with
+             * a new build number we need to treat 2.7.6 as a special case.
+             */
+            if("2.7.6.Final".equals(shortVersion)) {
+              switch(v) {
+                  case "2.7.6.Final-redhat-00006" -> shortVersionMap.put("2.7.6.Final",v);
+                  case "2.7.6.Final-redhat-00009" -> shortVersionMap.put("2.7.6.SP1",v);
+                  case "2.7.6.Final-redhat-00011" -> shortVersionMap.put("2.7.6.SP2",v);
+                  case "2.7.6.Final-redhat-00012" -> shortVersionMap.put("2.7.6.SP3",v);
+              }
+            } else if(shortVersionMap.containsKey(shortVersion)) {
                 if(largerThanExistingVersion(v,shortVersionMap.get(shortVersion))) {
                     shortVersionMap.replace(shortVersion,v);
                 }
