@@ -78,10 +78,14 @@ public class SupportTableExtensions {
                 return String.format("<font color='green'><strong>JVM</strong></font>");
             } else if (metadata.contains("supported")) {
                 return String.format("<font color='green'><strong>S</strong></font>");
+            } else if (metadata.contains("deprecated")) {
+                return String.format("<font color='red'><strong>DEP</strong></font>");
             } else if (metadata.contains("tech-preview")) {
                 return String.format("<font color='orange'><strong>TP</strong></font>");
             } else if (metadata.contains("dev-support")) {
                 return String.format("<font color='blue'><strong>DEV</strong></font>");
+            } else if (metadata.contains("unsupported")) {
+                return " - ";
             } else {
                 return metadata.toString();
             }
