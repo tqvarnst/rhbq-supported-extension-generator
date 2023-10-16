@@ -18,7 +18,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

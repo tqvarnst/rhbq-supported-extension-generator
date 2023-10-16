@@ -13,8 +13,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <quarkus.platform.group-id>com.redhat.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>2.13.7.SP1-redhat-00001</quarkus.platform.version>
+    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.version>3.2.6.Final</quarkus.platform.version>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
   </properties>
   <dependencyManagement>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>io.quarkiverse.mavenresolver</groupId>
       <artifactId>quarkus-maven-resolver</artifactId>
-      <version>0.0.3</version>
+      <version>0.0.4</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

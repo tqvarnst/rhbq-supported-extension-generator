@@ -4,7 +4,7 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.models.Platform;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
