@@ -11,20 +11,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install graalvm
-      uses: DeLaGuardo/setup-graalvm@3
+    - uses: graalvm/setup-graalvm@v1
       with:
-        graalvm-version: '22.1.0.java17'
-    - name: Install native-image
-      run: gu install native-image
-    - name: cache ~/.m2
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Set version
-      run: ./mvnw versions:set -DnewVersion="${{ github.event.release.tag_name }}" 
+        java-version: '21'
+        distribution: 'graalvm' # See 'Options' for all available distributions
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Build native executable
       run: ./mvnw package -Dnative -Dmaven.repo.local=/tmp
     - name: Upload native executable
