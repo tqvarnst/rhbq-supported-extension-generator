@@ -15,6 +15,7 @@ import io.quarkus.registry.catalog.ExtensionCatalog;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.jandex.Main;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -45,6 +46,12 @@ public class MainCommand implements Runnable {
 
     @Option(names = {"-u", "--use-upstream-registry"})
     Boolean upstreamsRegistry = false;
+
+    @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 3.2 -S 2.13")
+    List<String> streams;
+
+    @Option(names = {"--no-sp"}, description = "Filter out SP releases")
+    Boolean noSpReleases = false;
 
 
     @Inject
@@ -91,9 +98,33 @@ public class MainCommand implements Runnable {
     }
 
     private void listPlatformsAndGenerateMarkdown() {
+
+        boolean isStreamFilterActive= (streams!=null);
+
         List<String> platformVersions;
         try {
             platformVersions = platformVersionService.getVersions();
+
+            if(isStreamFilterActive) {
+                platformVersions = platformVersions.stream().filter(s -> streamFilterMatch(s)).toList();
+
+                /*platformVersions = platformVersions.stream().filter(version -> {
+                    boolean isPartOfRequestStreams = false;
+                    for (String requestedStream : streams) {
+                        if (version.startsWith(requestedStream)) {
+                            isPartOfRequestStreams = true;
+                        }
+                    }
+                    return isPartOfRequestStreams;
+                }).collect(Collectors.toList());*/
+            }
+
+            if(noSpReleases) {
+                platformVersions = platformVersions.stream().filter(s -> !s.contains("SP")).toList();
+            }
+
+            //TEST
+            platformVersions.forEach(System.out::println);
         } catch (Exception e) {
             Log.debug(e.getMessage(), e);
             System.out.println("Failed to get Platform Versions from the registry");
@@ -125,6 +156,16 @@ public class MainCommand implements Runnable {
             writeToFile(data.render());
             System.out.println("DONE!");
         }
+    }
+
+    private boolean streamFilterMatch(String version) {
+        boolean isPartOfRequestStreams = false;
+        for (String requestedStream : streams) {
+            if (version.startsWith(requestedStream)) {
+                isPartOfRequestStreams = true;
+            }
+        }
+        return isPartOfRequestStreams;
     }
 
     private void listProductExtensions() {
