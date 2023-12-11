@@ -84,6 +84,8 @@ public class SupportTableExtensions {
                 return String.format("<font color='orange'><strong>TP</strong></font>");
             } else if (metadata.contains("dev-support")) {
                 return String.format("<font color='blue'><strong>DEV</strong></font>");
+            } else if (metadata.contains("dev-preview")) {
+                return String.format("<font color='teal'><strong>DP</strong></font>");
             } else if (metadata.contains("unsupported")) {
                 return " - ";
             } else {
