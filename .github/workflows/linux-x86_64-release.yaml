@@ -37,6 +37,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./target/rhbq-supported-extension-generator-${{ project_version }}-runner
+        asset_path: ./target/rhbq-supported-extension-generator-${{env.project_version}}-runner
         asset_name: rhbq-gen-linux-x86_64
         asset_content_type: application/octet-stream
