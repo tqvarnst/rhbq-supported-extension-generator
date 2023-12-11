@@ -1,11 +1,15 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.utils;
 
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VersionUtils {
 
     private static final Pattern pattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+\\.\\w+).*");
+
+    private static final Pattern mainVersionPattern = Pattern.compile("^(\\d+)\\..*");
 
     public static String shortVersion(String fullVersion) {
         /**
@@ -30,4 +34,11 @@ public class VersionUtils {
     }
 
 
+    public static String mainVersion(String fullVersion) {
+        Matcher matcher = mainVersionPattern.matcher(fullVersion);
+        if(matcher.matches() && matcher.groupCount()==1) {
+            return matcher.group(1);
+        }
+        throw new RuntimeException("Failed to parse Main version");
+    }
 }

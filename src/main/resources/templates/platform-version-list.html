@@ -3,5 +3,3 @@
 {#for ec in extensionCatalogs}
 |{ec.bom.version.shortVersion.sectionLink}|{ec.bom.version}|{ec.upstreamQuarkusCoreVersion}|{#for member in ec.members.orEmpty}{member.memberName}<br/>{/for}|
 {/for}
-
-*= The platform functionality was introduced in 2.x, so for version before 2.x there is no list of platform members.

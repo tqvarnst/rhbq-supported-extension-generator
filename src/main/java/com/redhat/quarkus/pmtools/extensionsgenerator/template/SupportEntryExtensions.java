@@ -27,6 +27,8 @@ public class SupportEntryExtensions {
         return VersionUtils.shortVersion(fullVersion);
     }
 
+    public static String mainVersion(String fullVersion) { return VersionUtils.mainVersion(fullVersion); }
+
     public static String sectionLink(String s) {
         int pointPosition = s.indexOf(".");
         if(pointPosition>0 ) {

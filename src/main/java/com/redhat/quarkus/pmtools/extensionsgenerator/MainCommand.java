@@ -7,6 +7,7 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogS
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionRestClient;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionUtils;
 import io.quarkus.logging.Log;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
@@ -25,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @TopCommand
@@ -47,7 +49,7 @@ public class MainCommand implements Runnable {
     @Option(names = {"-u", "--use-upstream-registry"})
     Boolean upstreamsRegistry = false;
 
-    @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 3.2 -S 2.13")
+    @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 2.13 -S 2.7. At least one stream must be set and you can not combine streams from different major versions", required = true)
     List<String> streams;
 
     @Option(names = {"--no-sp"}, description = "Filter out SP releases")
@@ -102,6 +104,7 @@ public class MainCommand implements Runnable {
         boolean isStreamFilterActive= (streams!=null);
 
         List<String> platformVersions;
+        String mainVersion;
         try {
             platformVersions = platformVersionService.getVersions();
 
@@ -123,11 +126,19 @@ public class MainCommand implements Runnable {
                 platformVersions = platformVersions.stream().filter(s -> !s.contains("SP")).toList();
             }
 
-            //TEST
-            platformVersions.forEach(System.out::println);
+
+            Set<String> mainVersionSet = platformVersions.stream().map(s -> VersionUtils.mainVersion(s)).collect(Collectors.toSet());
+
+            if(mainVersionSet.size()>1) {
+                throw new Exception("Cannot create a page with multiple main versions on the same page. Aborting");
+            }
+
+            mainVersion = mainVersionSet.stream().findAny().orElseThrow();
+
+
         } catch (Exception e) {
             Log.debug(e.getMessage(), e);
-            System.out.println("Failed to get Platform Versions from the registry");
+            System.out.println("Failed with error message " + e.getMessage());
             return;
         }
 
@@ -145,7 +156,8 @@ public class MainCommand implements Runnable {
                 .collect(Collectors.toList());
 
 
-        TemplateInstance data = output.data("extensionCatalogs", extensionCatalogs);
+        TemplateInstance data = output.data("extensionCatalogs", extensionCatalogs)
+                .data("mainVersion",mainVersion);
 
         if ("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");
