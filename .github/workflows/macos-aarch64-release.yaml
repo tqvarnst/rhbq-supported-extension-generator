@@ -1,4 +1,4 @@
-name: MacOS x86_64 release
+name: MacOS aarch64 release
 
 on:
   release:
@@ -6,9 +6,7 @@ on:
 
 jobs:
   build:
-
-    runs-on: m1max
-
+    runs-on: macos-latest-xlarge
     steps:
     - uses: actions/checkout@v2
     - uses: graalvm/setup-graalvm@v1
