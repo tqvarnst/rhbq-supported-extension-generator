@@ -6,6 +6,7 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.services.CommunityExtensio
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionRestClient;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.AppConfig;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionUtils;
 import io.quarkus.logging.Log;
@@ -16,7 +17,6 @@ import io.quarkus.registry.catalog.ExtensionCatalog;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.jandex.Main;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -74,9 +74,13 @@ public class MainCommand implements Runnable {
     @Inject
     Template output;
 
+    @Inject
+    AppConfig appConfig;
+
 
     @Override
     public void run() {
+
         if (listExtensions) {
             if(outputFile.equals("")) {
                 System.out.println("You cannot set output file when listing extensions");
@@ -157,7 +161,8 @@ public class MainCommand implements Runnable {
 
 
         TemplateInstance data = output.data("extensionCatalogs", extensionCatalogs)
-                .data("mainVersion",mainVersion);
+                .data("mainVersion",mainVersion)
+                .data("appConfig",appConfig);
 
         if ("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");

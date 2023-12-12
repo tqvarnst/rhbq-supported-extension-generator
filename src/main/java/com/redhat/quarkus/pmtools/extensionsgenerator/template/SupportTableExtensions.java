@@ -1,5 +1,6 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.template;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.AppConfig;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionComparator;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.registry.catalog.Extension;
@@ -7,6 +8,7 @@ import io.quarkus.registry.catalog.ExtensionCatalog;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions.shortVersion;
 
@@ -17,7 +19,7 @@ public class SupportTableExtensions {
     private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
 
 
-    static String render(List<ExtensionCatalog> extensionCatalogs) {
+    public static String render(List<ExtensionCatalog> extensionCatalogs, AppConfig appConfig) {
         StringBuilder str = new StringBuilder();
         str.append("| Artifact | ");
         extensionCatalogs.forEach(extensionCatalog -> str.append(shortVersion(extensionCatalog.getBom().getVersion())).append(" | "));
@@ -36,7 +38,14 @@ public class SupportTableExtensions {
                     return id.equals(currentId);
                 }).findFirst();
                 if(extensionOptional.isPresent()) {
-                    str.append(printSupportStatusHTML(extensionOptional.get()));
+                    List<String> supportList = (List<String>) extensionOptional.get().getMetadata().get("redhat-support");
+                    // For the product "redhat-support" there is never more than one value
+                    if(supportList == null || supportList.size() == 0) {
+                        str.append("-");
+                    } else {
+                        String supportHtml = supportList.stream().map(s -> supportStatusHtml(s, appConfig)).collect(Collectors.joining(","));
+                        str.append(supportHtml);
+                    }
                 } else {
                     str.append("-");
                 }
@@ -68,30 +77,18 @@ public class SupportTableExtensions {
 
     }
 
-    private static String printSupportStatusHTML(Extension extension) {
-        @SuppressWarnings("unchecked")
-        List<String> metadata = (List<String>) extension.getMetadata().get("redhat-support");
-        String version = extension.getArtifact().getVersion();
-
-        if(metadata!=null) {
-            if (metadata.contains("supported-in-jvm")) {
-                return String.format("<font color='green'><strong>JVM</strong></font>");
-            } else if (metadata.contains("supported")) {
-                return String.format("<font color='green'><strong>S</strong></font>");
-            } else if (metadata.contains("deprecated")) {
-                return String.format("<font color='red'><strong>DEP</strong></font>");
-            } else if (metadata.contains("tech-preview")) {
-                return String.format("<font color='orange'><strong>TP</strong></font>");
-            } else if (metadata.contains("dev-support")) {
-                return String.format("<font color='blue'><strong>DEV</strong></font>");
-            } else if (metadata.contains("dev-preview")) {
-                return String.format("<font color='teal'><strong>DP</strong></font>");
-            } else if (metadata.contains("unsupported")) {
-                return " - ";
-            } else {
-                return metadata.toString();
-            }
+     public static String supportStatusHtml(String metadata, AppConfig appConfig) {
+        AppConfig.LabelConfig labelConfig = appConfig.label();
+        AppConfig.LabelConfig.Label label = null;
+        switch (metadata) {
+            case "supported-in-jvm" -> label = labelConfig.supportedInJvm();
+            case "supported" ->  label = labelConfig.supported();
+            case "deprecated" ->  label = labelConfig.deprecated();
+            case "tech-preview" ->  label = labelConfig.techPreview();
+            case "dev-support" ->  label = labelConfig.devSupport();
+            case "dev-preview" ->  label = labelConfig.devPreview();
+            default -> label = labelConfig.unsupported();
         }
-        return " - ";
+        return String.format("<font color='%s'><strong>%s/strong></font>",label.color(),label.classifier());
     }
 }
