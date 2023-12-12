@@ -89,6 +89,6 @@ public class SupportTableExtensions {
             case "dev-preview" ->  label = labelConfig.devPreview();
             default -> label = labelConfig.unsupported();
         }
-        return String.format("<font color='%s'><strong>%s/strong></font>",label.color(),label.classifier());
+        return String.format("<font color='%s'><strong>%s</strong></font>",label.color(),label.classifier());
     }
 }
