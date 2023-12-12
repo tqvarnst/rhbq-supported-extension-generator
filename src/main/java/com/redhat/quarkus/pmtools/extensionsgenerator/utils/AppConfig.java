@@ -5,6 +5,10 @@ import io.smallrye.config.WithName;
 
 @ConfigMapping(prefix="app")
 public interface AppConfig {
+
+
+    @WithName("show-only-supported-extensions")
+    Boolean showOnlySupportedExtensions();
     @WithName("label")
     LabelConfig label();
 

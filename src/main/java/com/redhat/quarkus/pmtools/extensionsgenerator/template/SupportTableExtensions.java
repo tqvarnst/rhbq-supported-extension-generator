@@ -16,7 +16,7 @@ import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEnt
 @TemplateExtension(namespace = "support_table")
 public class SupportTableExtensions {
 
-    private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
+//    private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
 
 
     public static String render(List<ExtensionCatalog> extensionCatalogs, AppConfig appConfig) {
@@ -28,7 +28,7 @@ public class SupportTableExtensions {
         extensionCatalogs.forEach(e -> str.append(" ----- |"));
         str.append(System.lineSeparator());
 
-        Set<String> extensions = getUniqueAndSortedExtensions(extensionCatalogs);
+        Set<String> extensions = getUniqueAndSortedExtensions(extensionCatalogs,appConfig);
         extensions.forEach(id -> {
             str.append("| ").append(id).append(" |");
             extensionCatalogs.forEach(extensionCatalog -> {
@@ -56,12 +56,12 @@ public class SupportTableExtensions {
         return str.toString();
     }
 
-    private static Set<String> getUniqueAndSortedExtensions(List<ExtensionCatalog> extensionCatalogList) {
+    private static Set<String> getUniqueAndSortedExtensions(List<ExtensionCatalog> extensionCatalogList,AppConfig appConfig) {
         Set<String> extensions = new TreeSet<>(new ExtensionComparator());
         extensionCatalogList.forEach(
                 extensionCatalog -> extensionCatalog.getExtensions().forEach(extension -> {
                     String id = extension.getArtifact().getArtifactId();
-                    if(!SHOW_ONLY_SUPPORTED_EXTENSIONS) {
+                    if(!appConfig.showOnlySupportedExtensions()) {
                         extensions.add(id);
                     } else if(hasSupportMetadata(extension)) {
                         extensions.add(id);

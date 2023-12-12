@@ -114,16 +114,6 @@ public class MainCommand implements Runnable {
 
             if(isStreamFilterActive) {
                 platformVersions = platformVersions.stream().filter(s -> streamFilterMatch(s)).toList();
-
-                /*platformVersions = platformVersions.stream().filter(version -> {
-                    boolean isPartOfRequestStreams = false;
-                    for (String requestedStream : streams) {
-                        if (version.startsWith(requestedStream)) {
-                            isPartOfRequestStreams = true;
-                        }
-                    }
-                    return isPartOfRequestStreams;
-                }).collect(Collectors.toList());*/
             }
 
             if(noSpReleases) {
