@@ -1,7 +1,5 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.utils;
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +20,8 @@ public class VersionUtils {
             case "2.7.6.Final-redhat-00009" -> shortVersion="2.7.6.SP1";
             case "2.7.6.Final-redhat-00011" -> shortVersion="2.7.6.SP2";
             case "2.7.6.Final-redhat-00012" -> shortVersion="2.7.6.SP3";
+            case "2.13.9.Final-redhat-00004" -> shortVersion="2.13.9.SP1";
+            case "3.2.9.Final-redhat-00004" -> shortVersion="3.2.9.SP1";
             default -> {
                 Matcher matcher = pattern.matcher(fullVersion);
                 if(matcher.matches() && matcher.groupCount()==1) {
