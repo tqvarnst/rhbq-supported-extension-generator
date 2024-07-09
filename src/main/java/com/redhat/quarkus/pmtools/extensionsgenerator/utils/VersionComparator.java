@@ -4,6 +4,9 @@ import java.util.Comparator;
 
 public class VersionComparator implements Comparator<String> {
 
+    // Match either Final for RHBQ <= 3.2 or for RHBQ 3.8+ match RedHat version (redhat-00001) as Final no longer exists
+    private static final String qualifierPattern = "Final|(redhat-[0-9]{5})";
+
     @Override
     public int compare(String thisKey, String otherKey) {
         String[] thisVersions = thisKey.split("\\.");
@@ -28,9 +31,9 @@ public class VersionComparator implements Comparator<String> {
                 if (thisMicroVersion == otherMicroVersion) {
                     if (thisQualifier.equals(otherQualifier)) {
                         return 0;
-                    } else if (thisQualifier.equals("Final") && otherQualifier.startsWith("SP")) {
+                    } else if (thisQualifier.matches(qualifierPattern) && otherQualifier.startsWith("SP")) {
                         return 1;
-                    } else if (otherQualifier.equals("Final") && thisQualifier.startsWith("SP")) {
+                    } else if (otherQualifier.matches(qualifierPattern) && thisQualifier.startsWith("SP")) {
                         return -1;
                     } else {
                         return otherQualifier.compareTo(thisQualifier);
