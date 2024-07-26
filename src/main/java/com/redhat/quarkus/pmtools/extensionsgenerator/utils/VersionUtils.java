@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class VersionUtils {
 
-    private static final Pattern pattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+\\.\\w+).*");
+    private static final Pattern pattern = Pattern.compile("^(\\d+\\.\\d+\\.\\d+.*).redhat.*");
 
     private static final Pattern mainVersionPattern = Pattern.compile("^(\\d+)\\..*");
 
