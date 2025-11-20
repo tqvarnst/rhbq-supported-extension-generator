@@ -1,5 +1,6 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.services;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.CommandLineFlags;
 import io.quarkus.bootstrap.resolver.maven.MavenArtifactResolver;
 import io.quarkus.logging.Log;
 import io.quarkus.maven.ArtifactCoords;
@@ -31,6 +32,9 @@ public class ExtensionCatalogService {
 	@Inject
 	MavenArtifactResolver artifactResolver;
 
+	@Inject
+	CommandLineFlags flags;
+
 	private volatile ExtensionCatalogResolver catalogResolver;
 
     @SuppressWarnings("all")
@@ -61,7 +65,7 @@ public class ExtensionCatalogService {
 		for (RegistryConfig registry : config.getRegistries()) {
 			if (registry.getId().equals(RH_QUARKUS_REGISTRY)) {
 				if(registry.isEnabled()) {
-				    return config;
+					return config;
 				}
 				final StringBuilder sb = new StringBuilder();
 				sb.append(RH_QUARKUS_REGISTRY).append(" was found disabled in ");
@@ -77,8 +81,9 @@ public class ExtensionCatalogService {
 			}
 		}
 		final List<RegistryConfig> registries = new ArrayList<>(config.getRegistries().size() + 1);
-		registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY).build());
+		registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY).setExtra("offering",flags.getOffering()).build());
 		registries.addAll(config.getRegistries());
+		//Add support for offering
 		return config.mutable().setRegistries(registries).build();
 	}
 }

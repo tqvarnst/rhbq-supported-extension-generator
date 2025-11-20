@@ -7,6 +7,7 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionCatalogS
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.ExtensionRestClient;
 import com.redhat.quarkus.pmtools.extensionsgenerator.services.PlatformVersionService;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.AppConfig;
+import com.redhat.quarkus.pmtools.extensionsgenerator.utils.CommandLineFlags;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionCatalogComparator;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionUtils;
 import io.quarkus.logging.Log;
@@ -49,12 +50,18 @@ public class MainCommand implements Runnable {
     @Option(names = {"-u", "--use-upstream-registry"})
     Boolean upstreamsRegistry = false;
 
+    @Option(names = {"--offering"}, description = "The product offering to display the support status for. Possible values are 'redhat' for Red Hat Quarkus, 'redhat-camel' for Red Hat Camel, and 'ibm' for IBM Quarkus.", required = true)
+    String offering;
+
     @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 2.13 -S 2.7. At least one stream must be set and you can not combine streams from different major versions", required = true)
     List<String> streams;
 
     @Option(names = {"--no-sp"}, description = "Filter out SP releases")
     Boolean noSpReleases = false;
 
+
+    @Inject
+    CommandLineFlags flags;
 
     @Inject
     PlatformVersionService platformVersionService;
@@ -81,8 +88,15 @@ public class MainCommand implements Runnable {
     @Override
     public void run() {
 
+        flags.setListExtensions(listExtensions);
+        flags.setCountExtensions(countExtensions);
+        flags.setUpstreamsRegistry(upstreamsRegistry);
+        flags.setStreams(streams);
+        flags.setOutputFile(outputFile);
+        flags.setOffering(offering);
+
         if (listExtensions) {
-            if(outputFile.equals("")) {
+            if(!outputFile.isEmpty()) {
                 System.out.println("You cannot set output file when listing extensions");
                 System.exit(0);
             }
@@ -152,7 +166,8 @@ public class MainCommand implements Runnable {
 
         TemplateInstance data = output.data("extensionCatalogs", extensionCatalogs)
                 .data("mainVersion",mainVersion)
-                .data("appConfig",appConfig);
+                .data("appConfig",appConfig)
+                .data("offering",offering);
 
         if ("unspecified".equals(outputFile)) {
             System.out.println("=========== Output =============");

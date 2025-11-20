@@ -5,9 +5,11 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionComparator;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.registry.catalog.Extension;
 import io.quarkus.registry.catalog.ExtensionCatalog;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions.shortVersion;
@@ -19,7 +21,7 @@ public class SupportTableExtensions {
 //    private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
 
 
-    public static String render(List<ExtensionCatalog> extensionCatalogs, AppConfig appConfig) {
+    public static String render(List<ExtensionCatalog> extensionCatalogs, AppConfig appConfig, String offering) {
         StringBuilder str = new StringBuilder();
         str.append("| Artifact | ");
         extensionCatalogs.forEach(extensionCatalog -> str.append(shortVersion(extensionCatalog.getBom().getVersion())).append(" | "));
@@ -28,7 +30,7 @@ public class SupportTableExtensions {
         extensionCatalogs.forEach(e -> str.append(" ----- |"));
         str.append(System.lineSeparator());
 
-        Set<String> extensions = getUniqueAndSortedExtensions(extensionCatalogs,appConfig);
+        Set<String> extensions = getUniqueAndSortedExtensions(extensionCatalogs,appConfig,offering);
         extensions.forEach(id -> {
             str.append("| ").append(id).append(" |");
             extensionCatalogs.forEach(extensionCatalog -> {
@@ -38,8 +40,8 @@ public class SupportTableExtensions {
                     return id.equals(currentId);
                 }).findFirst();
                 if(extensionOptional.isPresent()) {
-                    List<String> supportList = (List<String>) extensionOptional.get().getMetadata().get("redhat-support");
-                    // For the product "redhat-support" there is never more than one value
+                    List<String> supportList = (List<String>) extensionOptional.get().getMetadata().get(offering + "-support");
+                    // For the product "<offering>-support" there is never more than one value
                     if(supportList == null || supportList.size() == 0) {
                         str.append("-");
                     } else {
@@ -56,14 +58,17 @@ public class SupportTableExtensions {
         return str.toString();
     }
 
-    private static Set<String> getUniqueAndSortedExtensions(List<ExtensionCatalog> extensionCatalogList,AppConfig appConfig) {
+    private static Set<String> getUniqueAndSortedExtensions(List<ExtensionCatalog> extensionCatalogList,AppConfig appConfig, String offering) {
         Set<String> extensions = new TreeSet<>(new ExtensionComparator());
+        Logger log = Logger.getLogger("default");
         extensionCatalogList.forEach(
                 extensionCatalog -> extensionCatalog.getExtensions().forEach(extension -> {
                     String id = extension.getArtifact().getArtifactId();
+                    //log.info(id);
                     if(!appConfig.showOnlySupportedExtensions()) {
                         extensions.add(id);
                     } else if(hasSupportMetadata(extension)) {
+                        log.info(String.format("%s support %s",id,extension.getMetadata().get(offering + "-support")));
                         extensions.add(id);
                     }
                 })
@@ -72,7 +77,7 @@ public class SupportTableExtensions {
     }
 
     private static boolean hasSupportMetadata(Extension e) {
-        List<String> metadata = (List<String>) e.getMetadata().get("redhat-support");
+        List<String> metadata = (List<String>) e.getMetadata().get("ibm-support");
         return metadata != null && !metadata.contains("unsupported");
 
     }
