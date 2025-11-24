@@ -14,6 +14,7 @@ public class CommandLineFlags {
     List<String> streams;
     String offering;
     Boolean noSpReleases = false;
+    List<String> excludeMembers;
 
     public String getOutputFile() {
         return outputFile;
@@ -69,5 +70,13 @@ public class CommandLineFlags {
 
     public void setOffering(String offering) {
         this.offering = offering;
+    }
+
+    public void setExcludeMembers(List<String> excludeMembers) {
+        this.excludeMembers = excludeMembers;
+    }
+
+    public List<String> getExcludeMembers() {
+        return excludeMembers;
     }
 }

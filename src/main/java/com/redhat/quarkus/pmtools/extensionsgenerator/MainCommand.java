@@ -56,6 +56,9 @@ public class MainCommand implements Runnable {
     @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 2.13 -S 2.7. At least one stream must be set and you can not combine streams from different major versions", required = true)
     List<String> streams;
 
+    @Option(names = { "-x", "--exclude-from-member"}, description = "Exclude extensions from a particular member when generating the support table")
+    List<String> excludeMembers;
+
     @Option(names = {"--no-sp"}, description = "Filter out SP releases")
     Boolean noSpReleases = false;
 
@@ -94,6 +97,7 @@ public class MainCommand implements Runnable {
         flags.setStreams(streams);
         flags.setOutputFile(outputFile);
         flags.setOffering(offering);
+        flags.setExcludeMembers(excludeMembers);
 
         if (listExtensions) {
             if(!outputFile.isEmpty()) {
@@ -150,7 +154,7 @@ public class MainCommand implements Runnable {
             return;
         }
 
-        Log.debug("Sucessfully retrieved platform versions");
+        Log.debug("Successfully retrieved platform versions");
         Uni<List<ExtensionCatalog>> extensionCatalogListUni = Multi.createFrom().iterable(platformVersions)
                 .onItem()
                 .transformToUniAndMerge(v -> extensionCatalogService.getExtensionCatalogForVersion(v))

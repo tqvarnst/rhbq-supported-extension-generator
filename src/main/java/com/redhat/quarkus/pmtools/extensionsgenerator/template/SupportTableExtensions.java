@@ -5,11 +5,12 @@ import com.redhat.quarkus.pmtools.extensionsgenerator.utils.ExtensionComparator;
 import io.quarkus.qute.TemplateExtension;
 import io.quarkus.registry.catalog.Extension;
 import io.quarkus.registry.catalog.ExtensionCatalog;
+import io.quarkus.registry.catalog.ExtensionOrigin;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.jboss.logging.Logger;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEntryExtensions.shortVersion;
@@ -17,6 +18,8 @@ import static com.redhat.quarkus.pmtools.extensionsgenerator.template.SupportEnt
 @SuppressWarnings("unused")
 @TemplateExtension(namespace = "support_table")
 public class SupportTableExtensions {
+
+    private static final Logger log = Logger.getLogger(SupportTableExtensions.class.getName());
 
 //    private static final Boolean SHOW_ONLY_SUPPORTED_EXTENSIONS = ConfigProvider.getConfig().getValue("pm-tool.supported-extensions-table.show-only-supported-extensions",Boolean.class);
 
@@ -40,9 +43,23 @@ public class SupportTableExtensions {
                     return id.equals(currentId);
                 }).findFirst();
                 if(extensionOptional.isPresent()) {
-                    List<String> supportList = (List<String>) extensionOptional.get().getMetadata().get(offering + "-support");
-                    // For the product "<offering>-support" there is never more than one value
-                    if(supportList == null || supportList.size() == 0) {
+                    Extension e = extensionOptional.get();
+
+                    if(e.getArtifact().getArtifactId().equals("camel-quarkus-core") || e.getArtifact().getArtifactId().equals("quarkus-cxf")) {
+                        log.infof("%s:%s",e.getArtifact().getArtifactId(),e.getOrigins().stream().map(ExtensionOrigin::getId).collect(Collectors.joining(",")));
+                        log.infof("%s:%s [%s]",e.getArtifact().getArtifactId(),e.getArtifact().getVersion(),e.getMetadata().toString());
+
+                    }
+
+                    List<String> supportList = (List<String>) e.getMetadata().get(offering + "-support");
+                    // For backward compatibility with previous versions we will fall back to the ´redhat-support´ tag if there isn't any value for offering + "-support"
+
+
+                    if(supportList == null || supportList.isEmpty()) {
+                        supportList = (List<String>) e.getMetadata().get("redhat-support");
+                    }
+
+                    if(supportList == null || supportList.isEmpty()) {
                         str.append("-");
                     } else {
                         String supportHtml = supportList.stream().map(s -> supportStatusHtml(s, appConfig)).collect(Collectors.joining(","));
@@ -64,11 +81,10 @@ public class SupportTableExtensions {
         extensionCatalogList.forEach(
                 extensionCatalog -> extensionCatalog.getExtensions().forEach(extension -> {
                     String id = extension.getArtifact().getArtifactId();
-                    //log.info(id);
+                    //ExtensionOrigin extensionOrigin = extension.getOrigins().getFirst();
                     if(!appConfig.showOnlySupportedExtensions()) {
                         extensions.add(id);
-                    } else if(hasSupportMetadata(extension)) {
-                        log.info(String.format("%s support %s",id,extension.getMetadata().get(offering + "-support")));
+                    } else if(hasSupportMetadata(extension,offering)) {
                         extensions.add(id);
                     }
                 })
@@ -76,8 +92,8 @@ public class SupportTableExtensions {
         return extensions;
     }
 
-    private static boolean hasSupportMetadata(Extension e) {
-        List<String> metadata = (List<String>) e.getMetadata().get("ibm-support");
+    private static boolean hasSupportMetadata(Extension e, String offering) {
+        List<String> metadata = (List<String>) e.getMetadata().getOrDefault(offering + "-support",e.getMetadata().getOrDefault("redhat-support",List.of("unsupported")));
         return metadata != null && !metadata.contains("unsupported");
 
     }
