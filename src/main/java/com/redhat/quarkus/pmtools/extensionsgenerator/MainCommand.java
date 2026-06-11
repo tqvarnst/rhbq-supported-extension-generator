@@ -41,10 +41,13 @@ public class MainCommand implements Runnable {
     @Option(names = {"-t", "--timeout"}, description = "Increases the timeout waiting for remote registries. Unit it seconds and the default timeout is 30 seconds", defaultValue = "30")
     int timoutSeconds;
 
-    @Option(names = {"-l", "--list-extesions"})
+    @Option(names = {"-m", "--include-micro"}, description = "Add this flag to include all micro releases, default will be only the latest micro to a minor")
+    Boolean includeMicro = false;
+
+    @Option(names = {"-l", "--list-extensions"})
     Boolean listExtensions = false;
 
-    @Option(names = {"-c", "--count-extesions"})
+    @Option(names = {"-c", "--count-extensions"})
     Boolean countExtensions = false;
 
     @Option(names = {"-u", "--use-upstream-registry"})
@@ -128,7 +131,7 @@ public class MainCommand implements Runnable {
         List<String> platformVersions;
         String mainVersion;
         try {
-            platformVersions = platformVersionService.getVersions();
+            platformVersions = includeMicro ? platformVersionService.getVersions() : platformVersionService.getStreamVersions();
 
             if(isStreamFilterActive) {
                 platformVersions = platformVersions.stream().filter(s -> streamFilterMatch(s)).toList();

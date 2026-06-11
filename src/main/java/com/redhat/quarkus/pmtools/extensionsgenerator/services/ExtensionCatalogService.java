@@ -81,8 +81,8 @@ public class ExtensionCatalogService {
 			}
 		}
 		final List<RegistryConfig> registries = new ArrayList<>(config.getRegistries().size() + 1);
-//		registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY).setExtra("offering",flags.getOffering()).build());
-		registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY));
+		registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY).setExtra("offering",flags.getOffering()).build());
+		//registries.add(RegistryConfig.builder().setId(RH_QUARKUS_REGISTRY));
 		registries.addAll(config.getRegistries());
 		//Add support for offering
 		return config.mutable().setRegistries(registries).build();

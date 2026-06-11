@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PlatformVersionService {
@@ -59,6 +61,28 @@ public class PlatformVersionService {
         String vBuildNumber = v.replace(shortName+"-redhat-","");
         String sBuildNumber = s.replace(shortName+"-redhat-","");
         return Integer.parseInt(vBuildNumber) > Integer.parseInt(sBuildNumber);
+    }
+
+    public List<String> getStreamVersions() {
+        return this.getVersions().stream()
+                .collect(Collectors.toMap(
+                        this::streamKey,            // key: first two components
+                        v -> v,                     // value: the full version
+                        (first, second) -> first,   // on collision, keep the first (latest)
+                        LinkedHashMap::new))        // preserve encounter order
+                .values()
+                .stream()
+                .toList();
+    }
+
+    /**
+     * Returns the stream key (major.minor) for a version string. E.g. input 3.27.4.SP1 will output 3.27
+     * @param version
+     * @return
+     */
+    private String streamKey(String version) {
+        String[] parts = version.split("\\.");
+        return parts.length >= 2 ? parts[0] + "." + parts[1] : version;
     }
 }
 
