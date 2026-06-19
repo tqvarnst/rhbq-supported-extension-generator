@@ -26,8 +26,8 @@ public class SupportTableExtensions {
 
     public static String render(List<ExtensionCatalog> extensionCatalogs, AppConfig appConfig, String offering) {
         StringBuilder str = new StringBuilder();
-        str.append("| Artifact | ");
-        extensionCatalogs.forEach(extensionCatalog -> str.append(shortVersion(extensionCatalog.getBom().getVersion())).append(" | "));
+        str.append("| Artifact |");
+        extensionCatalogs.forEach(extensionCatalog -> str.append(" ").append(shortVersion(extensionCatalog.getBom().getVersion())).append(" |"));
         str.append(System.lineSeparator());
         str.append("| ----- |");
         extensionCatalogs.forEach(e -> str.append(" ----- |"));

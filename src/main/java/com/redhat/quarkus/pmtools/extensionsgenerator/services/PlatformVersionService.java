@@ -68,7 +68,7 @@ public class PlatformVersionService {
                 .collect(Collectors.toMap(
                         this::streamKey,            // key: first two components
                         v -> v,                     // value: the full version
-                        (first, second) -> first,   // on collision, keep the first (latest)
+                        this::pickLatestVersion,
                         LinkedHashMap::new))        // preserve encounter order
                 .values()
                 .stream()
@@ -83,6 +83,18 @@ public class PlatformVersionService {
     private String streamKey(String version) {
         String[] parts = version.split("\\.");
         return parts.length >= 2 ? parts[0] + "." + parts[1] : version;
+    }
+
+    private String pickLatestVersion(String first, String second) {
+        // Uppercase letters are ordered before lowercase letters, due to having lower character values.
+        // Comparing lowercase versions to pick SP release over the regular .z release
+        //      "3.33.2.r".compareTo("3.33.2.S")) = 31
+        //      "3.33.2.r".compareTo("3.33.2.s")) = -1
+        if (first.toLowerCase().compareTo(second.toLowerCase()) >= 0) {
+            return first;
+        } else {
+            return second;
+        }
     }
 }
 

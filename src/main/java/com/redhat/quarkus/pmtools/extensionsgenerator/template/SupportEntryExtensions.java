@@ -1,5 +1,6 @@
 package com.redhat.quarkus.pmtools.extensionsgenerator.template;
 
+import com.redhat.quarkus.pmtools.extensionsgenerator.MainCommand;
 import com.redhat.quarkus.pmtools.extensionsgenerator.utils.VersionUtils;
 import io.quarkus.logging.Log;
 import io.quarkus.qute.TemplateExtension;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.toList;
 
 @SuppressWarnings("unused")
 @TemplateExtension
@@ -57,7 +60,13 @@ public class SupportEntryExtensions {
             if(platformRelease instanceof Map) {
                 Object members = ((Map<String, Object>) platformRelease).get("members");
                 if(members instanceof Collection) {
-                    return new ArrayList<>(((Collection<String>) members));
+                    if (MainCommand.offering.equals("redhat")) {
+                        return ((Collection<String>) members).stream()
+                                .filter(member -> MainCommand.RHBQ_MEMBERS.contains(memberName(member)))
+                                .collect(toList());
+                    } else {
+                        return new ArrayList<>(((Collection<String>) members));
+                    }
                 }
             }
         }

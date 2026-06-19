@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class MainCommand implements Runnable {
 
+    public static List<String> RHBQ_MEMBERS = List.of("quarkus", "quarkus-qpid-jms", "quarkus-operator-sdk");
+
     @Option(names = {"-o", "--output"}, description = "The file to write the generated mark down to, leave empty to print to console", defaultValue = "unspecified")
     String outputFile;
 
@@ -54,7 +56,7 @@ public class MainCommand implements Runnable {
     Boolean upstreamsRegistry = false;
 
     @Option(names = {"--offering"}, description = "The product offering to display the support status for. Possible values are 'redhat' for Red Hat Quarkus, 'redhat-camel' for Red Hat Camel, and 'ibm' for IBM Quarkus.", required = true)
-    String offering;
+    public static String offering;
 
     @Option(names = { "-S", "--stream"}, description = "Specify which streams to use. Use multiple times for multiple stream, e.g. -S 2.13 -S 2.7. At least one stream must be set and you can not combine streams from different major versions", required = true)
     List<String> streams;
